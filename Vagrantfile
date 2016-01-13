@@ -71,11 +71,7 @@ Vagrant.configure("2") do |config|
     master.vm.provider :virtualbox do |v|
       v.name = "vm-cluster-node1"
       #v.customize ["modifyvm", :id, "--memory", "10240"]
-<<<<<<< HEAD
       v.customize ["modifyvm", :id, "--memory", "4096"]
-=======
-      v.customize ["modifyvm", :id, "--memory", "10240"]
->>>>>>> 8208a8219775d20c1fed627482e1e35eaae0e019
     end
     master.vm.network :private_network, ip: "192.168.254.100"
     master.vm.hostname = "vm-cluster-node1"
@@ -88,11 +84,8 @@ Vagrant.configure("2") do |config|
     slave1.vm.box = "vagrant-centos-6.7.box"
     slave1.vm.provider :virtualbox do |v|
       v.name = "vm-cluster-node2"
-<<<<<<< HEAD
       v.customize ["modifyvm", :id, "--memory", "1536"]
-=======
       v.customize ["modifyvm", :id, "--memory", "3072"]
->>>>>>> 8208a8219775d20c1fed627482e1e35eaae0e019
     end
     slave1.vm.network :private_network, ip: "192.168.254.101"
     slave1.vm.hostname = "vm-cluster-node2"
