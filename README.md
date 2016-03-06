@@ -41,4 +41,6 @@ $ vagrant up
 
 Go to the [Cloudera Manager web console](http://vm-cluster-node1:7180) and follow the installation instructions. For more detailed instructions on how to do that, you can use [this guide](http://dandydev.net/blog/installing-virtual-hadoop-cluster).
 
+- in [japanese document](http://qiita.com/Salinger/items/db66067a54e17d76cf6b)
+
 **Done!** Have fun with your Hadoop cluster.
