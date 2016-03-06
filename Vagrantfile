@@ -28,15 +28,16 @@ fi
 yum -y clean all
 yum -y update
 yum -y install oracle-j2sdk1.7 dnsmasq search hadoop-yarn-resourcemanager zookeeper zookeeper-server hadoop-hdfs-namenode hadoop-hdfs-secondarynamenode hadeeop-hdfs-datanode hadoop-mapreduce  hadoop-yarn-proxyserver hadoop-mapreduce-historyserver hadoop-client cloudera-manager-server-db-2 cloudera-manager-daemons cloudera-manager-server
+#yum --enablerepo=epel install -y supervisor
 service cloudera-scm-server-db initdb
 service cloudera-scm-server-db start
 service cloudera-scm-server start
+
 SCRIPT
 
 $hosts_script = <<SCRIPT
-
-echo $master_script > master_script.tmp
-exit 0
+#echo $master_script > master_script.tmp
+#exit 0
 cat > /etc/hosts <<EOF
 127.0.0.1       localhost
 
@@ -51,6 +52,7 @@ EOF
 SCRIPT
 
 $slave_script = <<SCRIPT
+
 cat > /etc/dhcp/dhclient.conf <<EOF
 supersede domain-name-servers 192.168.254.100;
 EOF
@@ -94,7 +96,7 @@ Vagrant.configure("2") do |config|
     slave1.vm.network :private_network, ip: "192.168.254.101"
     slave1.vm.hostname = "vm-cluster-node2"
     slave1.vm.provision :shell, :inline => $hosts_script
-    slave1.vm.provision :shell, :inline => $slave_script
+    #slave1.vm.provision :shell, :inline => $slave_script
     slave1.vm.provision :hostmanager
   end
 
@@ -107,7 +109,7 @@ Vagrant.configure("2") do |config|
     slave2.vm.network :private_network, ip: "192.168.254.102"
     slave2.vm.hostname = "vm-cluster-node3"
     slave2.vm.provision :shell, :inline => $hosts_script
-    slave2.vm.provision :shell, :inline => $slave_script
+    #slave2.vm.provision :shell, :inline => $slave_script
     slave2.vm.provision :hostmanager
   end
 
@@ -120,7 +122,7 @@ Vagrant.configure("2") do |config|
     slave3.vm.network :private_network, ip: "192.168.254.103"
     slave3.vm.hostname = "vm-cluster-node4"
     slave3.vm.provision :shell, :inline => $hosts_script
-    slave3.vm.provision :shell, :inline => $slave_script
+    #slave3.vm.provision :shell, :inline => $slave_script
     slave3.vm.provision :hostmanager
   end
 
