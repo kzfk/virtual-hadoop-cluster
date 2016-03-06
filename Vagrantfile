@@ -108,7 +108,7 @@ Vagrant.configure("2") do |config|
     master.vm.provider :virtualbox do |v|
       v.name = "vm-cluster-node1"
       #v.customize ["modifyvm", :id, "--memory", "10240"]
-      v.customize ["modifyvm", :id, "--memory", "4096"]
+      v.customize ["modifyvm", :id, "--memory", "6144"]
 
       second_disk = File.join(vb_machine_folder, v.name, 'disk2.vdi')
 
@@ -137,7 +137,7 @@ Vagrant.configure("2") do |config|
     slave1.vm.box = "vagrant-centos-6.7.box"
     slave1.vm.provider :virtualbox do |v|
       v.name = "vm-cluster-node2"
-      v.customize ["modifyvm", :id, "--memory", "1536"]
+      v.customize ["modifyvm", :id, "--memory", "2048"]
       #v.customize ["modifyvm", :id, "--memory", "3072"]
       second_disk = File.join(vb_machine_folder, v.name, 'disk2.vdi')
 
@@ -166,7 +166,7 @@ Vagrant.configure("2") do |config|
     slave2.vm.box = "vagrant-centos-6.7.box"
     slave2.vm.provider :virtualbox do |v|
       v.name = "vm-cluster-node3"
-      v.customize ["modifyvm", :id, "--memory", "1536"]
+      v.customize ["modifyvm", :id, "--memory", "2048"]
       second_disk = File.join(vb_machine_folder, v.name, 'disk2.vdi')
 
       storage_controller = 'SATA Controller'
@@ -194,7 +194,7 @@ Vagrant.configure("2") do |config|
     slave3.vm.box = "vagrant-centos-6.7.box"
     slave3.vm.provider :virtualbox do |v|
       v.name = "vm-cluster-node4"
-      v.customize ["modifyvm", :id, "--memory", "1536"]
+      v.customize ["modifyvm", :id, "--memory", "2048"]
       second_disk = File.join(vb_machine_folder, v.name, 'disk2.vdi')
 
       storage_controller = 'SATA Controller'
