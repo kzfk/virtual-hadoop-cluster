@@ -36,6 +36,7 @@ service cloudera-scm-server start
 SCRIPT
 
 $hosts_script = <<SCRIPT
+#!/bin/bash
 #echo $master_script > master_script.tmp
 #exit 0
 cat > /etc/hosts <<EOF
@@ -59,9 +60,34 @@ EOF
 sudo dhclient
 SCRIPT
 
+$master_optdisk_script = <<SCRIPT
+#!/bin/bash
+
+if [ -e /dev/sdb1 ]; then
+  exit 0
+fi
+
+echo "opt_disk setup..."
+yum install -y parted
+
+# partition create
+echo "part mkpart"
+parted -s -a optimal /dev/sdb mklabel gpt -- mkpart primary ext4 0% 100%
+# format filesystem
+echo "ext4 format"
+mkfs.ext4 -q /dev/sdb1
+# mount disk
+echo "mount disk"
+mkdir /opt/cloudera
+mount /dev/sdb1 /opt/cloudera
+# fstab
+echo "fstab addline"
+echo `blkid /dev/sdb1 | awk '{print$2}' | sed -e 's/"//g'` /opt/cloudera ext4 defaults,relatime   0   0 >> /etc/fstab
+#echo '/dev/sdb1 /opt/cloudera ext4 defaults,relatime 0 0' >> /etc/fstab
+
+SCRIPT
 
 Vagrant.configure("2") do |config|
-
   # Define base image
   config.vm.box = "vagrant-centos-6.7.box"
   #config.vm.box_url = "http://files.vagrantup.com/precise64.box"
@@ -78,11 +104,30 @@ Vagrant.configure("2") do |config|
       v.name = "vm-cluster-node1"
       #v.customize ["modifyvm", :id, "--memory", "10240"]
       v.customize ["modifyvm", :id, "--memory", "4096"]
+
+      # Get disk path
+      line = `VBoxManage list systemproperties | grep "Default machine folder"`
+      vb_machine_folder = line.split(':')[1].strip()
+      second_disk = File.join(vb_machine_folder, v.name, 'disk2.vdi')
+
+      storage_controller = 'SATA Controller'
+      if not File.exist?(second_disk) then
+        v.customize ["createhd",
+                      "--filename", second_disk,
+                      "--size", 30 * 1024] # 30 * 1024 = 30GB
+      end
+      v.customize ['storageattach', :id,
+                    '--storagectl', storage_controller,
+                    '--port', 1, #sdb
+                    '--device', 0,
+                    '--type', 'hdd',
+                    '--medium', second_disk]
     end
     master.vm.network :private_network, ip: "192.168.254.100"
     master.vm.hostname = "vm-cluster-node1"
     master.vm.provision :shell, :inline => $hosts_script
     master.vm.provision :hostmanager
+    master.vm.provision :shell, :inline => $master_optdisk_script
     master.vm.provision :shell, :inline => $master_script
   end
 
