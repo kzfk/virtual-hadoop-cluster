@@ -27,7 +27,8 @@ curl https://archive.cloudera.com/cm5/redhat/6/x86_64/cm/cloudera-manager.repo -
 fi
 yum -y clean all
 yum -y update
-yum -y install oracle-j2sdk1.7 dnsmasq search hadoop-yarn-resourcemanager zookeeper zookeeper-server hadoop-hdfs-namenode hadoop-hdfs-secondarynamenode hadeeop-hdfs-datanode hadoop-mapreduce  hadoop-yarn-proxyserver hadoop-mapreduce-historyserver hadoop-client cloudera-manager-server-db-2 cloudera-manager-daemons cloudera-manager-server
+yum -y install oracle-j2sdk1.7 dnsmasq cloudera-manager-server-db-2 cloudera-manager-daemons cloudera-manager-server
+#yum -y install oracle-j2sdk1.7 dnsmasq search hadoop-yarn-resourcemanager zookeeper zookeeper-server hadoop-hdfs-namenode hadoop-hdfs-secondarynamenode hadeeop-hdfs-datanode hadoop-mapreduce  hadoop-yarn-proxyserver hadoop-mapreduce-historyserver hadoop-client cloudera-manager-server-db-2 cloudera-manager-daemons cloudera-manager-server
 #yum --enablerepo=epel install -y supervisor
 service cloudera-scm-server-db initdb
 service cloudera-scm-server-db start
@@ -60,7 +61,7 @@ EOF
 sudo dhclient
 SCRIPT
 
-$master_optdisk_script = <<SCRIPT
+$optdisk_script = <<SCRIPT
 #!/bin/bash
 
 if [ -e /dev/sdb1 ]; then
@@ -98,6 +99,10 @@ Vagrant.configure("2") do |config|
   config.hostmanager.manage_host = true
   config.hostmanager.include_offline = true
   config.hostmanager.ignore_private_ip = false
+  
+  # Get disk path
+  line = `VBoxManage list systemproperties | grep "Default machine folder"`
+  vb_machine_folder = line.split(':')[1].strip()
 
   config.vm.define :master do |master|
     master.vm.provider :virtualbox do |v|
@@ -105,9 +110,6 @@ Vagrant.configure("2") do |config|
       #v.customize ["modifyvm", :id, "--memory", "10240"]
       v.customize ["modifyvm", :id, "--memory", "4096"]
 
-      # Get disk path
-      line = `VBoxManage list systemproperties | grep "Default machine folder"`
-      vb_machine_folder = line.split(':')[1].strip()
       second_disk = File.join(vb_machine_folder, v.name, 'disk2.vdi')
 
       storage_controller = 'SATA Controller'
@@ -127,7 +129,7 @@ Vagrant.configure("2") do |config|
     master.vm.hostname = "vm-cluster-node1"
     master.vm.provision :shell, :inline => $hosts_script
     master.vm.provision :hostmanager
-    master.vm.provision :shell, :inline => $master_optdisk_script
+    master.vm.provision :shell, :inline => $optdisk_script
     master.vm.provision :shell, :inline => $master_script
   end
 
@@ -136,13 +138,28 @@ Vagrant.configure("2") do |config|
     slave1.vm.provider :virtualbox do |v|
       v.name = "vm-cluster-node2"
       v.customize ["modifyvm", :id, "--memory", "1536"]
-      v.customize ["modifyvm", :id, "--memory", "3072"]
+      #v.customize ["modifyvm", :id, "--memory", "3072"]
+      second_disk = File.join(vb_machine_folder, v.name, 'disk2.vdi')
+
+      storage_controller = 'SATA Controller'
+      if not File.exist?(second_disk) then
+        v.customize ["createhd",
+                      "--filename", second_disk,
+                      "--size", 30 * 1024] # 30 * 1024 = 30GB
+      end
+      v.customize ['storageattach', :id,
+                    '--storagectl', storage_controller,
+                    '--port', 1, #sdb
+                    '--device', 0,
+                    '--type', 'hdd',
+                    '--medium', second_disk]
     end
     slave1.vm.network :private_network, ip: "192.168.254.101"
     slave1.vm.hostname = "vm-cluster-node2"
     slave1.vm.provision :shell, :inline => $hosts_script
     #slave1.vm.provision :shell, :inline => $slave_script
     slave1.vm.provision :hostmanager
+    slave1.vm.provision :shell, :inline => $optdisk_script
   end
 
   config.vm.define :slave2 do |slave2|
@@ -150,12 +167,27 @@ Vagrant.configure("2") do |config|
     slave2.vm.provider :virtualbox do |v|
       v.name = "vm-cluster-node3"
       v.customize ["modifyvm", :id, "--memory", "1536"]
+      second_disk = File.join(vb_machine_folder, v.name, 'disk2.vdi')
+
+      storage_controller = 'SATA Controller'
+      if not File.exist?(second_disk) then
+        v.customize ["createhd",
+                      "--filename", second_disk,
+                      "--size", 30 * 1024] # 30 * 1024 = 30GB
+      end
+      v.customize ['storageattach', :id,
+                    '--storagectl', storage_controller,
+                    '--port', 1, #sdb
+                    '--device', 0,
+                    '--type', 'hdd',
+                    '--medium', second_disk]
     end
     slave2.vm.network :private_network, ip: "192.168.254.102"
     slave2.vm.hostname = "vm-cluster-node3"
     slave2.vm.provision :shell, :inline => $hosts_script
     #slave2.vm.provision :shell, :inline => $slave_script
     slave2.vm.provision :hostmanager
+    slave2.vm.provision :shell, :inline => $optdisk_script
   end
 
   config.vm.define :slave3 do |slave3|
@@ -163,12 +195,27 @@ Vagrant.configure("2") do |config|
     slave3.vm.provider :virtualbox do |v|
       v.name = "vm-cluster-node4"
       v.customize ["modifyvm", :id, "--memory", "1536"]
+      second_disk = File.join(vb_machine_folder, v.name, 'disk2.vdi')
+
+      storage_controller = 'SATA Controller'
+      if not File.exist?(second_disk) then
+        v.customize ["createhd",
+                      "--filename", second_disk,
+                      "--size", 30 * 1024] # 30 * 1024 = 30GB
+      end
+      v.customize ['storageattach', :id,
+                    '--storagectl', storage_controller,
+                    '--port', 1, #sdb
+                    '--device', 0,
+                    '--type', 'hdd',
+                    '--medium', second_disk]
     end
     slave3.vm.network :private_network, ip: "192.168.254.103"
     slave3.vm.hostname = "vm-cluster-node4"
     slave3.vm.provision :shell, :inline => $hosts_script
     #slave3.vm.provision :shell, :inline => $slave_script
     slave3.vm.provision :hostmanager
+    slave3.vm.provision :shell, :inline => $optdisk_script
   end
 
 end
