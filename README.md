@@ -1,5 +1,5 @@
 # A working virtual Hadoop cluster virtual-hadoop-cluster
-(forked from https://github.com/DandyDev, but modified to create RHEL6/rpm VMs instead of Ubuntu)/
+(forked from https://github.com/DandyDev, https://github.com/timbaileyjones/virtual-hadoop-cluster, but modified to manager install)/
 
 With these files you can setup and provision a locally running, virtual Hadoop cluster in real distributed fashion for trying out Hadoop and related technologies. It runs the latest Cloudera Hadoop distribution: **CDH5**. It also allows you to practise the use of [Cloudera Manager](http://www.cloudera.com/content/cloudera/en/products-and-services/cloudera-enterprise/cloudera-manager.html) for installing the Hadoop stack. If you're looking for a fully automated install, without user intervention, look elsewhere. I specifically made this with the goal of creating an environment ideally suited for Cloudera Manager to do its job. This gives you the freedom to actually install the services you want, and change the configuration how you see fit.
 
@@ -29,7 +29,7 @@ $ vagrant plugin install vagrant-hostmanager
 Clone this repository.
 
 ```bash
-$ git clone https://github.com/timbaileyjones/virtual-hadoop-cluster.git
+$ git clone https://github.com/kzfk/virtual-hadoop-cluster.git
 ```
 
 Provision the bare cluster. It will ask you to enter your password, so it can modify your `/etc/hosts` file for easy access in your browser. It uses the Vagrant Hostmanager plugin to do this.

@@ -20,13 +20,17 @@ echo curl https://archive.cloudera.com/cdh5/redhat/6/x86_64/cdh/cloudera-cdh5.re
 
 curl https://archive.cloudera.com/cdh5/redhat/6/x86_64/cdh/cloudera-cdh5.repo -o /etc/yum.repos.d/cloudera-cdh5.repo
 
+echo curl https://archive.cloudera.com/cm5/redhat/6/x86_64/cm/cloudera-manager.repo -o /etc/yum.repos.d/cloudera-manager.repo
+
+curl https://archive.cloudera.com/cm5/redhat/6/x86_64/cm/cloudera-manager.repo -o /etc/yum.repos.d/cloudera-manager.repo
+
 fi
 yum -y clean all
 yum -y update
-yum -y install oracle-j2sdk1.7 dnsmasq search hadoop-yarn-resourcemanager zookeeper zookeeper-server hadoop-hdfs-namenode hadoop-hdfs-secondarynamenode hadeeop-hdfs-datanode hadoop-mapreduce  hadoop-yarn-proxyserver hadoop-mapreduce-historyserver hadoop-client
-#service cloudera-scm-server-db initdb
-#service cloudera-scm-server-db start
-#service cloudera-scm-server start
+yum -y install oracle-j2sdk1.7 dnsmasq search hadoop-yarn-resourcemanager zookeeper zookeeper-server hadoop-hdfs-namenode hadoop-hdfs-secondarynamenode hadeeop-hdfs-datanode hadoop-mapreduce  hadoop-yarn-proxyserver hadoop-mapreduce-historyserver hadoop-client cloudera-manager-server-db-2 cloudera-manager-daemons cloudera-manager-server
+service cloudera-scm-server-db initdb
+service cloudera-scm-server-db start
+service cloudera-scm-server start
 SCRIPT
 
 $hosts_script = <<SCRIPT
