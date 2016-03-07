@@ -60,6 +60,14 @@ $slave_script = <<SCRIPT
 #EOF
 #sudo dhclient
 
+REPOCM=${REPOCM:-cm5}
+CM_REPO_HOST=${CM_REPO_HOST:-archive.cloudera.com}
+CM_MAJOR_VERSION=$(echo $REPOCM | sed -e 's/cm\\([0-9]\\).*/\\1/')
+CM_VERSION=$(echo $REPOCM | sed -e 's/cm\\([0-9][0-9]*\\)/\\1/')
+OS_CODENAME=$(lsb_release -sc)
+OS_DISTID=$(lsb_release -si | tr '[A-Z]' '[a-z]')
+if [ $CM_MAJOR_VERSION -ge 4 ]; then
+
 set | grep ^CM
 echo curl https://archive.cloudera.com/cm5/redhat/6/x86_64/cm/cloudera-manager.repo -o /etc/yum.repos.d/cloudera-manager.repo
 curl https://archive.cloudera.com/cm5/redhat/6/x86_64/cm/cloudera-manager.repo -o /etc/yum.repos.d/cloudera-manager.repo
