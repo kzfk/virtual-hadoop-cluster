@@ -27,7 +27,7 @@ curl https://archive.cloudera.com/cm5/redhat/6/x86_64/cm/cloudera-manager.repo -
 fi
 yum -y clean all
 yum -y update
-yum -y install oracle-j2sdk1.7 dnsmasq cloudera-manager-server-db-2 cloudera-manager-daemons cloudera-manager-server
+yum -y install oracle-j2sdk1.7 bind-utils dnsmasq cloudera-manager-server-db-2 cloudera-manager-daemons cloudera-manager-server
 #yum -y install oracle-j2sdk1.7 dnsmasq search hadoop-yarn-resourcemanager zookeeper zookeeper-server hadoop-hdfs-namenode hadoop-hdfs-secondarynamenode hadeeop-hdfs-datanode hadoop-mapreduce  hadoop-yarn-proxyserver hadoop-mapreduce-historyserver hadoop-client cloudera-manager-server-db-2 cloudera-manager-daemons cloudera-manager-server
 #yum --enablerepo=epel install -y supervisor
 service cloudera-scm-server-db initdb
@@ -55,10 +55,22 @@ SCRIPT
 
 $slave_script = <<SCRIPT
 
-cat > /etc/dhcp/dhclient.conf <<EOF
-supersede domain-name-servers 192.168.254.100;
-EOF
-sudo dhclient
+#cat > /etc/dhcp/dhclient.conf <<EOF
+#supersede domain-name-servers 192.168.254.100;
+#EOF
+#sudo dhclient
+
+set | grep ^CM
+echo curl https://archive.cloudera.com/cm5/redhat/6/x86_64/cm/cloudera-manager.repo -o /etc/yum.repos.d/cloudera-manager.repo
+curl https://archive.cloudera.com/cm5/redhat/6/x86_64/cm/cloudera-manager.repo -o /etc/yum.repos.d/cloudera-manager.repo
+fi
+
+yum -y clean all
+yum -y update
+
+
+yum install -y bind-utils oracle-j2sdk1.7
+
 SCRIPT
 
 $optdisk_script = <<SCRIPT
@@ -157,7 +169,7 @@ Vagrant.configure("2") do |config|
     slave1.vm.network :private_network, ip: "192.168.254.101"
     slave1.vm.hostname = "vm-cluster-node2"
     slave1.vm.provision :shell, :inline => $hosts_script
-    #slave1.vm.provision :shell, :inline => $slave_script
+    slave1.vm.provision :shell, :inline => $slave_script
     slave1.vm.provision :hostmanager
     slave1.vm.provision :shell, :inline => $optdisk_script
   end
@@ -185,7 +197,7 @@ Vagrant.configure("2") do |config|
     slave2.vm.network :private_network, ip: "192.168.254.102"
     slave2.vm.hostname = "vm-cluster-node3"
     slave2.vm.provision :shell, :inline => $hosts_script
-    #slave2.vm.provision :shell, :inline => $slave_script
+    slave2.vm.provision :shell, :inline => $slave_script
     slave2.vm.provision :hostmanager
     slave2.vm.provision :shell, :inline => $optdisk_script
   end
@@ -213,7 +225,7 @@ Vagrant.configure("2") do |config|
     slave3.vm.network :private_network, ip: "192.168.254.103"
     slave3.vm.hostname = "vm-cluster-node4"
     slave3.vm.provision :shell, :inline => $hosts_script
-    #slave3.vm.provision :shell, :inline => $slave_script
+    slave3.vm.provision :shell, :inline => $slave_script
     slave3.vm.provision :hostmanager
     slave3.vm.provision :shell, :inline => $optdisk_script
   end
